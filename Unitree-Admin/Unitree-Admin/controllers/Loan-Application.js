@@ -1,4 +1,5 @@
 const sgMail = require('@sendgrid/mail');
+const LoanApplication = require('../models/LoanApplication');
 // dotenv already loaded in app.js
 
 // Set SendGrid API key
@@ -95,6 +96,60 @@ const submitLoanApplication = async (req, res) => {
     if (monthly_income < 0) {
       return res.status(400).json({ message: 'Monthly income cannot be negative' });
     }
+
+    // Save to database
+    const loanApplication = new LoanApplication({
+      loan_type,
+      loan_amount,
+      loan_purpose,
+      loan_term,
+      full_name,
+      middle_name,
+      contact_number,
+      email,
+      date_of_birth,
+      marital_status,
+      dependents,
+      driver_license,
+      medicare_number,
+      passport_number,
+      residential_address,
+      residential_status,
+      time_at_address,
+      previous_address,
+      employment_type,
+      employer_name,
+      occupation,
+      time_with_employer,
+      income_range,
+      monthly_income,
+      other_income,
+      monthly_expenses,
+      existing_debts,
+      credit_profile,
+      assets,
+      bank_name,
+      account_years,
+      credit_cards,
+      total_credit_limit,
+      have_mortgage,
+      mortgage_balance,
+      bankruptcy_history,
+      property_value,
+      vehicle_make,
+      vehicle_model,
+      vehicle_year,
+      vehicle_price,
+      business_name,
+      business_abn,
+      business_years,
+      preferred_contact_method,
+      preferred_contact_time,
+      referral_source,
+      notes,
+    });
+
+    await loanApplication.save();
 
     // Email content
     const msg = {
