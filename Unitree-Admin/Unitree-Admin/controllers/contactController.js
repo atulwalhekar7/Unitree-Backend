@@ -1,4 +1,5 @@
 const sgMail = require('@sendgrid/mail');
+const Contact = require('../models/Contact');
 // dotenv already loaded in app.js
 
 // Set SendGrid API key
@@ -29,6 +30,23 @@ const submitContactForm = async (req, res) => {
     // Validate required fields
     if (!name || !email || !phone || !credit_rating || !loan_type || !business_trading_time || !loan_amount || !message) {
       return res.status(400).json({ message: 'All required fields must be filled' });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    // Validate loan amount
+    if (loan_amount <= 0) {
+      return res.status(400).json({ message: 'Loan amount must be greater than zero' });
+    }
+
+    // Validate phone number (basic check for digits and length)
+    const phoneRegex = /^\+?\d{8,15}$/;
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({ message: 'Invalid phone number format' });
     }
 
     // Email content
@@ -86,6 +104,21 @@ const submitContactForm = async (req, res) => {
 
     // Send confirmation email
     await sgMail.send(confirmationMsg);
+
+    // Save to database
+    const newContact = new Contact({
+      name,
+      email,
+      phone,
+      business_abn,
+      trading_name,
+      credit_rating,
+      loan_type,
+      business_trading_time,
+      loan_amount,
+      message,
+    });
+    await newContact.save();
 
     res.status(200).json({ message: 'Message sent successfully' });
   } catch (error) {

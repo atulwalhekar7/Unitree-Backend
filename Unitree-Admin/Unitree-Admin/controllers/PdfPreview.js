@@ -1,4 +1,5 @@
 const sgMail = require('@sendgrid/mail');
+const PdfPreview = require('../models/PdfPreview');
 // dotenv already loaded in app.js
 
 // Set SendGrid API key
@@ -23,6 +24,18 @@ const submitPdfPreviewForm = async (req, res) => {
     // Validate required fields
     if (!fullName || !contactNumber || !email || !message) {
       return res.status(400).json({ message: 'All required fields must be filled' });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    // Validate phone number (basic check for digits and length)
+    const phoneRegex = /^\+?\d{8,15}$/;
+    if (!phoneRegex.test(contactNumber)) {
+      return res.status(400).json({ message: 'Invalid phone number format' });
     }
 
     // Email content
@@ -73,6 +86,15 @@ const submitPdfPreviewForm = async (req, res) => {
 
     // Send confirmation email
     await sgMail.send(confirmationMsg);
+
+    // Save to database
+    const newPdfPreview = new PdfPreview({
+      fullName,
+      contactNumber,
+      email,
+      message,
+    });
+    await newPdfPreview.save();
 
     res.status(200).json({ message: 'Request sent successfully' });
   } catch (error) {

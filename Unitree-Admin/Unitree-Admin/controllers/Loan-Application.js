@@ -69,6 +69,33 @@ const submitLoanApplication = async (req, res) => {
       return res.status(400).json({ message: 'All required fields must be filled' });
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    // Validate loan amount
+    if (loan_amount <= 0) {
+      return res.status(400).json({ message: 'Loan amount must be greater than zero' });
+    }
+
+    // Validate loan term
+    if (loan_term <= 0) {
+      return res.status(400).json({ message: 'Loan term must be greater than zero' });
+    }
+
+    // Validate date of birth (must be in the past)
+    const dob = new Date(date_of_birth);
+    if (isNaN(dob.getTime()) || dob >= new Date()) {
+      return res.status(400).json({ message: 'Invalid date of birth' });
+    }
+
+    // Validate monthly income
+    if (monthly_income < 0) {
+      return res.status(400).json({ message: 'Monthly income cannot be negative' });
+    }
+
     // Email content
     const msg = {
       to: process.env.RECIPIENT_EMAIL,
