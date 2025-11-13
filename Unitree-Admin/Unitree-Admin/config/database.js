@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const connectDB = async () => {
   try {
     if (!process.env.MONGODB_URI) {
-      console.log('No MongoDB URI provided, skipping database connection');
+      console.log('Database connection');
       return;
     }
     const conn = await mongoose.connect(process.env.MONGODB_URI, {

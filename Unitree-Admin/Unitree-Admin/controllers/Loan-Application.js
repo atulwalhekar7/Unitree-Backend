@@ -264,6 +264,17 @@ const submitLoanApplication = async (req, res) => {
   }
 };
 
+const getLoanApplications = async (req, res) => {
+  try {
+    const loanApplications = await LoanApplication.find().sort({ submittedAt: -1 }); // Sort by newest first
+    res.status(200).json({ loanApplications });
+  } catch (error) {
+    console.error('Error fetching loan applications:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   submitLoanApplication,
+  getLoanApplications,
 };
