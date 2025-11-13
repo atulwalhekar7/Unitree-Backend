@@ -105,6 +105,17 @@ const submitPdfPreviewForm = async (req, res) => {
   }
 };
 
+const getAllPdfPreviews = async (req, res) => {
+  try {
+    const pdfPreviews = await PdfPreview.find().sort({ submittedAt: -1 });
+    res.status(200).json(pdfPreviews);
+  } catch (error) {
+    console.error('Error fetching PDF previews:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   submitPdfPreviewForm,
+  getAllPdfPreviews,
 };
