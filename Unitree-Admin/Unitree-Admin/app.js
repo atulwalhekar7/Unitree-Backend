@@ -6,7 +6,8 @@ const connectDB = require('./config/database');
 const contactRoutes = require('./routes/contactRoutes');
 const pdfPreviewRoutes = require('./routes/pdfPreviewRoutes');
 const loanApplicationRoutes = require('./routes/loanApplicationRoutes');
-
+const clientDealRoutes = require('./routes/clientDealRoutes');
+const partnerRoutes = require('./routes/partnerRoutes');
 const app = express();
 
 // Connect to MongoDB (optional for contact form)
@@ -20,6 +21,8 @@ app.use(cookieParser());
 app.use('/api/contact', contactRoutes);
 app.use('/api/pdf-preview', pdfPreviewRoutes);
 app.use('/api/loan-application', loanApplicationRoutes);
+app.use('/api/deals', clientDealRoutes);
+app.use('/api/partners', partnerRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
