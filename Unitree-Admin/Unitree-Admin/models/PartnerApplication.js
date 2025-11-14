@@ -69,6 +69,11 @@ const PartnerApplicationSchema = new mongoose.Schema({
     },
 
     // --- Metadata ---
+    status: {
+        type: String,
+        enum: ['new', 'contacted'],
+        default: 'new',
+    },
     appliedAt: {
         type: Date,
         default: Date.now

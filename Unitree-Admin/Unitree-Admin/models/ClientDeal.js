@@ -72,6 +72,11 @@ const ClientDealSchema = new mongoose.Schema({
     },
     
     // --- Metadata ---
+    status: {
+        type: String,
+        enum: ['new', 'contacted'],
+        default: 'new',
+    },
     submittedAt: {
         type: Date,
         default: Date.now
