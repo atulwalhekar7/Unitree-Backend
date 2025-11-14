@@ -193,6 +193,11 @@ const loanApplicationSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  status: {
+    type: String,
+    enum: ['new', 'contacted'],
+    default: 'new',
+  },
   submittedAt: {
     type: Date,
     default: Date.now,

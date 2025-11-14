@@ -41,6 +41,11 @@ const contactSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  status: {
+    type: String,
+    enum: ['new', 'contacted'],
+    default: 'new',
+  },
   submittedAt: {
     type: Date,
     default: Date.now,
