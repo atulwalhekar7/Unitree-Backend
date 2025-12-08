@@ -1,4 +1,4 @@
-require('dotenv').config({ encoding: 'utf16le' });
+require('dotenv').config();
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
@@ -42,9 +42,13 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+try {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+} catch (error) {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+}
 
-
-connectDB().then(() => console.log("MONGO CONNECTED")).catch(err => console.log(err));
+connectDB().then(() => console.log("MONGO CONNECTED")).catch(err => console.log('MongoDB connection error:', err));
