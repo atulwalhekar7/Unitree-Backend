@@ -4,6 +4,8 @@
 - [x] Downgraded Express from ^5.1.0 to ^4.18.2 for stability
 - [x] Removed unusual encoding 'utf16le' from dotenv.config() in app.js
 - [x] Added error handling around app.listen() and connectDB() calls in app.js
+- [x] Removed duplicate connectDB() call
+- [x] Added logging for route loading and try-catch around requiring adminRoutes
 
 ## Next Steps:
 - [ ] Redeploy the application on Render

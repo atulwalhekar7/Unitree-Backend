@@ -11,12 +11,16 @@ const clientDealRoutes = require('./routes/clientDealRoutes');
 const partnerRoutes = require('./routes/partnerRoutes');
 
 
-const adminRoutes = require('./routes/adminRoutes');
+let adminRoutes;
+try {
+  adminRoutes = require('./routes/adminRoutes');
+  console.log('Admin routes required successfully');
+} catch (error) {
+  console.error('Error requiring adminRoutes:', error);
+  adminRoutes = express.Router(); // fallback
+}
 
 const app = express();
-
-// Connect to MongoDB (optional for contact form)
-connectDB();
 
 // Middleware
 app.use(express.json());
@@ -25,6 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // Routes
+console.log('Loading routes...');
 app.use('/api/contact', contactRoutes);
 app.use('/api/pdf-preview', pdfPreviewRoutes);
 app.use('/api/loan-application', loanApplicationRoutes);
@@ -34,6 +39,7 @@ app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/deals', clientDealRoutes);
 app.use('/api/partners', partnerRoutes);
 app.use('/api/admin', adminRoutes);
+console.log('Admin routes loaded at /api/admin');
 
 // Basic route for testing
 app.get('/', (req, res) => {
