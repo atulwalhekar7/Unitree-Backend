@@ -1,35 +1,41 @@
-const nodemailer = require("nodemailer");
-
 const sendEmail = async ({ email, subject, message }) => {
   try {
-    console.log("✅ Loaded HOST:", process.env.EMAIL_SERVICE_HOST);
-    console.log("✅ Loaded PORT:", process.env.EMAIL_SERVICE_PORT);
-    console.log("✅ Sending email TO:", email);
+    if (!process.env.BREVO_API_KEY || !process.env.EMAIL_FROM) {
+      throw new Error("Email credentials not configured. Please set BREVO_API_KEY and EMAIL_FROM in your environment variables.");
+    }
 
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_SERVICE_HOST,
-      port: process.env.EMAIL_SERVICE_PORT,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_SERVICE_USER,
-        pass: process.env.EMAIL_SERVICE_PASS,
+    const payload = {
+      sender: {
+        email: process.env.EMAIL_FROM,
       },
+      to: [
+        {
+          email: email,
+        },
+      ],
+      subject,
+      htmlContent: message,
+    };
+
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+      },
+      body: JSON.stringify(payload),
     });
 
-    const mailOptions = {
-      from: `"Unitree Admin" <shreekatkar3632@gmail.com>`, // ✅ MUST be your VERIFIED sender
-      to: email,                                          // ✅ Receiver
-      subject: subject,
-      html: message,
-    };
-    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Brevo API error: ${errorData.message || response.statusText}`);
+    }
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Email Sent Successfully:", info.messageId);
-
+    const data = await response.json();
+    console.log("Email sent:", data.messageId);
     return { success: true };
   } catch (error) {
-    console.error("❌ Email sending error:", error.message);
+    console.error("Error sending email:", error);
     return { success: false };
   }
 };

@@ -27,20 +27,20 @@ const generateToken = (id) => {
  * Utility function to generate a secure, temporary reset token
  */
 const createPasswordResetToken = (admin) => {
-    // 1. Generate a secure, non-hashed token (sent to the user via email)
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    
+    // 1. Generate a JWT token with admin id, expires in 15 minutes
+    const resetToken = jwt.sign({ id: admin._id }, JWT_SECRET, { expiresIn: '15m' });
+
     // 2. Hash the token and store it in the database (for security)
     admin.passwordResetToken = crypto
         .createHash('sha256')
         .update(resetToken)
         .digest('hex');
 
-    // 3. Set the expiry time (10 minutes from now)
-    admin.passwordResetExpires = Date.now() + 10 * 60 * 1000; 
-    
-    // 4. Return the UN-HASHED token to be emailed
-    return resetToken; 
+    // 3. Set the expiry time (15 minutes from now)
+    admin.passwordResetExpires = Date.now() + 15 * 60 * 1000;
+
+    // 4. Return the UN-HASHED JWT token to be emailed
+    return resetToken;
 };
 
 
@@ -49,13 +49,13 @@ const createPasswordResetToken = (admin) => {
 // ==========================================================
 exports.adminSignup = async (req, res) => {
     try {
+        const adminCount = await Admin.countDocuments();
+        if (adminCount > 0) {
+            return res.status(403).json({ message: 'An admin account already exists. Additional sign-ups are not permitted.' });
+        }
+
         const { username, email, password } = req.body;
 
-        const adminExists = await Admin.findOne({ email });
-        if (adminExists) {
-            return res.status(400).json({ message: 'Admin already exists' });
-        }
-        
         // Hash the password securely
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -143,15 +143,14 @@ exports.forgotPassword = async (req, res) => {
       // Generate reset token
       const resetToken = createPasswordResetToken(admin);
       await admin.save({ validateBeforeSave: false });
-  
-      const resetURL = `http://localhost:5000/api/admin/resetpassword/${resetToken}`;
 
-  
+      const resetURL = `https://unitree-finance.web.app/reset-password/${resetToken}`;
+
       const message = `
-        <h2>Password Reset</h2>
-        <p>Click below to reset your password:</p>
-        <a href="${resetURL}">Reset Password</a>
-        <p>Valid for 10 minutes.</p>
+        <h2>Password Reset Request</h2>
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetURL}">${resetURL}</a>
+        <p>This link expires in 15 minutes.</p>
       `;
   
       const emailResult = await sendEmail({
@@ -214,31 +213,21 @@ exports.showResetForm = async (req, res) => {
 
 exports.resetPassword = async (req, res) => {
     try {
-      const hashedToken = crypto
-        .createHash("sha256")
-        .update(req.params.token)
-        .digest("hex");
-  
-      const admin = await Admin.findOne({
-        passwordResetToken: hashedToken,
-        passwordResetExpires: { $gt: Date.now() },
-      });
-  
-      if (!admin) {
-        return res.send("<h3>Token is invalid or has expired</h3>");
-      }
-  
+      const { token } = req.params;
+      const { password } = req.body;
+
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const admin = await Admin.findById(decoded.id);
+      if (!admin) return res.status(404).json({ message: "Invalid token" });
+
       const salt = await bcrypt.genSalt(10);
-      admin.password = await bcrypt.hash(req.body.password, salt);
-  
-      admin.passwordResetToken = undefined;
-      admin.passwordResetExpires = undefined;
-  
+      admin.password = await bcrypt.hash(password, salt);
       await admin.save();
-  
-      res.send("<h2>Password Reset Successful ✅</h2><p>You can now login.</p>");
+
+      return res.json({ message: "Password reset successful!" });
     } catch (err) {
-      res.send("<h2>Something went wrong ❌</h2>");
+      console.error(err);
+      return res.status(400).json({ message: "Invalid or expired token", error: err.message });
     }
   };
   
