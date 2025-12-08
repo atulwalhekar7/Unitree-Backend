@@ -6,6 +6,7 @@
 - [x] Added error handling around app.listen() and connectDB() calls in app.js
 - [x] Removed duplicate connectDB() call
 - [x] Added logging for route loading and try-catch around requiring adminRoutes
+- [x] Added logging in adminRoutes.js and authController.adminSignup
 
 ## Next Steps:
 - [ ] Redeploy the application on Render

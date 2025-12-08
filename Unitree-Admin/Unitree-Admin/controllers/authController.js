@@ -48,6 +48,7 @@ const createPasswordResetToken = (admin) => {
 // Admin Sign Up (For creating users securely)
 // ==========================================================
 exports.adminSignup = async (req, res) => {
+    console.log('adminSignup called with body:', req.body);
     try {
         const { username, email, password } = req.body;
 
