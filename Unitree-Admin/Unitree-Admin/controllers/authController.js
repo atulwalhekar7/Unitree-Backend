@@ -51,11 +51,6 @@ exports.adminSignup = async (req, res) => {
     console.log('adminSignup called with body:', req.body);
     console.log('Content-Type:', req.headers['content-type']);
     try {
-        const adminCount = await Admin.countDocuments();
-        if (adminCount > 0) {
-            return res.status(403).json({ message: 'An admin account already exists. Additional sign-ups are not permitted.' });
-        }
-
         const { username, email, password } = req.body;
 
         // Hash the password securely
