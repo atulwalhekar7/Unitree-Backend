@@ -49,8 +49,13 @@ const createPasswordResetToken = (admin) => {
 // ==========================================================
 exports.adminSignup = async (req, res) => {
     console.log('adminSignup called with body:', req.body);
+    console.log('Content-Type:', req.headers['content-type']);
     try {
         const { username, email, password } = req.body;
+
+        if (!username || !email || !password) {
+            return res.status(400).json({ message: "Username, email, and password required" });
+        }
 
         const adminExists = await Admin.findOne({ email });
         if (adminExists) {

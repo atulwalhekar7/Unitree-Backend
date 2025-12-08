@@ -7,6 +7,10 @@
 - [x] Removed duplicate connectDB() call
 - [x] Added logging for route loading and try-catch around requiring adminRoutes
 - [x] Added logging in adminRoutes.js and authController.adminSignup
+- [x] Added test route /api/admin/test to verify route mounting
+
+## Issue Resolved:
+- [x] 404 error fixed - routes are now being matched (now getting 400 Bad Request instead)
 
 ## Next Steps:
 - [ ] Redeploy the application on Render
