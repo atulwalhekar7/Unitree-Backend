@@ -11,6 +11,8 @@ const clientDealRoutes = require('./routes/clientDealRoutes');
 const partnerRoutes = require('./routes/partnerRoutes');
 
 
+const adminRoutes = require('./routes/adminRoutes');
+
 const app = express();
 
 // Connect to MongoDB (optional for contact form)
@@ -19,6 +21,8 @@ connectDB();
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+
 
 // Routes
 app.use('/api/contact', contactRoutes);
@@ -29,6 +33,7 @@ app.use('/api', leadsRoutes);
 app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/deals', clientDealRoutes);
 app.use('/api/partners', partnerRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
@@ -40,3 +45,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+
+connectDB().then(() => console.log("MONGO CONNECTED")).catch(err => console.log(err));
