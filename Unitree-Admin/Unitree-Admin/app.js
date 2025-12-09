@@ -1,8 +1,10 @@
-require('dotenv').config();
+require('dotenv').config({ path: './.env' });
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/database');
+
+// Routes
 const contactRoutes = require('./routes/contactRoutes');
 const pdfPreviewRoutes = require('./routes/pdfPreviewRoutes');
 const loanApplicationRoutes = require('./routes/loanApplicationRoutes');
@@ -10,14 +12,13 @@ const leadsRoutes = require('./routes/leadsRoutes');
 const clientDealRoutes = require('./routes/clientDealRoutes');
 const partnerRoutes = require('./routes/partnerRoutes');
 
-
 let adminRoutes;
 try {
   adminRoutes = require('./routes/adminRoutes');
   console.log('Admin routes required successfully');
 } catch (error) {
   console.error('Error requiring adminRoutes:', error);
-  adminRoutes = express.Router(); // fallback
+  adminRoutes = express.Router();
 }
 
 const app = express();
@@ -27,8 +28,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-
-// Routes
+// Routes mapping
 console.log('Loading routes...');
 app.use('/api/contact', contactRoutes);
 app.use('/api/pdf-preview', pdfPreviewRoutes);
@@ -41,20 +41,23 @@ app.use('/api/partners', partnerRoutes);
 app.use('/api/admin', adminRoutes);
 console.log('Admin routes loaded at /api/admin');
 
-// Basic route for testing
+// Test route
 app.get('/', (req, res) => {
   res.send('Backend Mini Project API');
 });
 
+// PORT
 const PORT = process.env.PORT || 5000;
 
-try {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// CONNECT MONGODB FIRST → THEN START SERVER
+connectDB()
+  .then(() => {
+    console.log("Mongo connected, starting server...");
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ MongoDB connection failed:', err);
+    process.exit(1);
   });
-} catch (error) {
-  console.error('Failed to start server:', error);
-  process.exit(1);
-}
-
-connectDB().then(() => console.log("MONGO CONNECTED")).catch(err => console.log('MongoDB connection error:', err));
