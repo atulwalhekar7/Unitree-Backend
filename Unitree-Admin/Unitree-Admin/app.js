@@ -1,5 +1,11 @@
 require('dotenv').config({ path: './.env' });
 
+// Temporary console logs to confirm environment variables are loaded
+console.log('MONGODB_URI loaded:', process.env.MONGODB_URI ? 'Yes' : 'No');
+console.log('JWT_SECRET loaded:', process.env.JWT_SECRET ? 'Yes' : 'No');
+console.log('BREVO_API_KEY loaded:', process.env.BREVO_API_KEY ? 'Yes' : 'No');
+console.log('EMAIL_FROM loaded:', process.env.EMAIL_FROM ? 'Yes' : 'No');
+
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/database');

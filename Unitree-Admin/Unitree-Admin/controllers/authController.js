@@ -53,6 +53,12 @@ exports.adminSignup = async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
+        // Check if username already exists
+        const existingAdmin = await Admin.findOne({ username });
+        if (existingAdmin) {
+            return res.status(400).json({ message: 'Username already exists' });
+        }
+
         // Hash the password securely
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
